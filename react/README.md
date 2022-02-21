@@ -8,23 +8,30 @@ Requirements to install this application:
 
 - yarn
 
-## Running the app
+Run `yarn install` to install dependancies.
 
-`yarn install`
+### Running the app
 
-`yarn run`
+Run `yarn run` to run the app.
 
-production build:
+### production
 
-`yarn run build`
+run `yarn run build` to have a production ready.
 
 You're all done!
 
-references:
+### References
+
 https://create-react-app.dev/
+
 https://mediasoup.org/
+
 https://v4.mui.com/
+
 https://reactcommunity.org/react-transition-group/
+
 https://github.com/bvaughn/react-window
+
 https://github.com/bvaughn/react-virtualized-auto-sizer/
+
 https://www.iamhosseindhv.com/notistack
