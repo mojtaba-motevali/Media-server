@@ -11,13 +11,13 @@ Requirements to install this application:
 
 Run `cargo install` to install dependancies.
 
-## Running the app
+### Running the app
 
 You should set environment variables in .env file using .env.example as an example.
 
 Then run `cargo run` to run the server.
 
-### Production build:
+### Production
 
 run `cargo build` then pick up the binary generated under `/target/release/`
 

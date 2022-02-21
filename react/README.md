@@ -1,8 +1,8 @@
-## Description
+### Description
 
 Conferance-like Web application.
 
-## Installation
+### Installation
 
 Requirements to install this application:
 
@@ -20,7 +20,7 @@ run `yarn run build` to have a production ready.
 
 You're all done!
 
-### References
+## References
 
 https://create-react-app.dev/
 
