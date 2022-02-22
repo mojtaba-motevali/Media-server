@@ -12,6 +12,8 @@ Run `yarn install` to install dependancies.
 
 ### Running the app
 
+Before running the application you should set environment variables in .env file using .env.example as an example.
+
 Run `yarn run` to run the app.
 
 ### production
