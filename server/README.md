@@ -27,6 +27,6 @@ You're all done!
 
 https://actix.rs/
 
-https://actix.rs/book/actix/sec-2-actor.html#:~:text=Actix%20is%20built%20on%20the,provided%20by%20the%20actix%20library.
+https://actix.rs/book/actix/
 
 https://mediasoup.org/
