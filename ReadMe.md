@@ -11,3 +11,7 @@ Following diagram is application's signaling server architecture:
 Following diagram is application's mediasoup architecture:
 
 ![alt text](https://github.com/mojtaba-motevali/Media-server/blob/master/assets/Mediasoup-svg.svg?raw=true)
+
+## License
+
+This application is [MIT License](LICENSE)
