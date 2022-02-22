@@ -1,6 +1,6 @@
 # Descriotion
 
-This repository includes SFU server written in Rust and client web application written in React.
+This software includes a selective forwarding unit server written in Rust and a react application as web client.
 
 # Architecture
 
