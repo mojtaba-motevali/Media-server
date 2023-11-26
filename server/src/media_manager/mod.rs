@@ -337,7 +337,7 @@ impl MediaWorkerManager {
         let worker_app_data = arc_mutex_cw.clone();
 
         transport
-            .on_new_consumer(Box::new(move |consumer: &Consumer| {
+            .on_new_consumer(Arc::new(move |consumer: &Consumer| {
                 let rapp_data = router_app_data.clone();
                 let wapp_data = worker_app_data.clone();
                 address.do_send(AddConsumer {
@@ -377,8 +377,8 @@ impl MediaWorkerManager {
             .downcast::<RwLock<ProducerRouterAppData>>()
             .unwrap();
         transport
-            .on_new_producer(Box::new(move |producer: &Producer| {
-                let rapp_data = router_app_data.clone();
+            .on_new_producer(Arc::new(move |producer: &Producer| {
+                let rapp_data: Arc<RwLock<ProducerRouterAppData>> = router_app_data.clone();
                 let wapp_data = worker_app_data.clone();
                 address.do_send(AddProducer {
                     producer_worker_app_data: wapp_data.clone(),

@@ -30,7 +30,7 @@ impl Handler<InternalMessage> for Room {
                     .detach();
                 let address = ctx.address();
                 audio_level_observer
-                    .on_volumes(move |voloumes: &Vec<AudioLevelObserverVolume>| {
+                    .on_volumes(move |voloumes: &[AudioLevelObserverVolume]| {
                         if voloumes.len() > 0 {
                             // loudest producer_id
                             let producer_id = voloumes[0].producer.id();

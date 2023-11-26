@@ -59,7 +59,7 @@ impl User {
         let app_data = MediaAppData {
             service_type: service_type,
             user_id: user_id,
-            router_id: transport.router_id(),
+            router_id: transport.router().id(),
         };
         produce_options.app_data = AppData::new(app_data.clone());
         let producer: Producer = transport.produce(produce_options).await?;

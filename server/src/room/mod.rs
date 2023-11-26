@@ -20,7 +20,7 @@ use crate::user::User;
 use async_rwlock::RwLock;
 use mediasoup::audio_level_observer::{AudioLevelObserver, AudioLevelObserverVolume};
 use mediasoup::data_structures::AppData;
-use mediasoup::data_structures::TransportListenIp;
+use mediasoup::data_structures::ListenIp;
 use mediasoup::producer::ProducerId;
 use mediasoup::router::PipeToRouterOptions;
 use mediasoup::router::{Router, RouterId};
@@ -100,7 +100,7 @@ impl Room {
         let announced_ip: String = env::var("ANNOUNCED_IP").unwrap();
         let arr: Vec<&str> = announced_ip.split(".").collect();
         let mut transport_options =
-            WebRtcTransportOptions::new(TransportListenIps::new(TransportListenIp {
+            WebRtcTransportOptions::new(TransportListenIps::new(ListenIp {
                 ip: listen_ip.parse().unwrap(),
                 announced_ip: Some(IpAddr::V4(Ipv4Addr::new(
                     arr[0].parse().unwrap(),
@@ -329,7 +329,7 @@ impl Actor for Room {
             })
             .detach();
         audio_level_observer
-            .on_volumes(move |voloumes: &Vec<AudioLevelObserverVolume>| {
+            .on_volumes(move |voloumes: &[AudioLevelObserverVolume] | {
                 if voloumes.len() > 0 {
                     // loudest producer_id
                     let producer_id = voloumes[0].producer.id();

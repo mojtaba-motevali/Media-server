@@ -60,7 +60,7 @@ impl User {
             consume_options.app_data = AppData::new(MediaAppData {
                 user_id: options.user_id,
                 service_type: options.service_type,
-                router_id: transport.router_id(),
+                router_id: transport.router().id(),
             });
             consume_options.paused = true;
             let consumer = match transport.consume(consume_options).await {
