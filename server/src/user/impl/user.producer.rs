@@ -9,14 +9,13 @@ use mediasoup::transport::Transport;
 use mediasoup::webrtc_transport::WebRtcTransport;
 use mediasoup::webrtc_transport::WebRtcTransportRemoteParameters;
 use mediasoup::worker::RequestError;
-use tracing::info;
 
 impl User {
     ///
     /// This function inserts the provided producer into producer list.
     ///
     pub fn insert_producer(&mut self, producer: Producer) {
-        info!("inserting producer  {:?} ", producer.id());
+        println!("inserting producer  {:?} ", producer.id());
         self.producers.insert(producer.id(), producer);
     }
     ///
@@ -58,21 +57,21 @@ impl User {
             self.producer_transports.get(&self.current_pt_id).unwrap();
         let mut produce_options = ProducerOptions::new(kind, rtp_parameters);
         let app_data = MediaAppData {
-            service_type,
-            user_id,
+            service_type: service_type,
+            user_id: user_id,
             router_id: transport.router().id(),
         };
-        produce_options.app_data = AppData::new(app_data);
+        produce_options.app_data = AppData::new(app_data.clone());
         let producer: Producer = transport.produce(produce_options).await?;
         self.producers.insert(producer.id(), producer.clone());
-        Ok(producer)
+        return Ok(producer);
     }
     pub fn get_producers(&self) -> Vec<Producer> {
         let mut producers: Vec<Producer> = vec![];
         self.producers
             .values()
             .for_each(|prod| producers.push(prod.clone()));
-        producers
+        return producers;
     }
 
     pub async fn pause_producer(&self, producer_id: ProducerId) -> Result<(), RequestError> {
