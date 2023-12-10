@@ -2,6 +2,7 @@ use crate::room::dto::consumer_pause_request::ConsumerPauseRequest;
 use crate::room::Room;
 use crate::session::room_actor_msg::DisconnectMessage;
 use actix::prelude::*;
+use tracing::error;
 ///
 /// This handler is used to serve user's request and pause user's consumer stream.
 ///
@@ -17,7 +18,7 @@ impl Handler<ConsumerPauseRequest> for Room {
                 match user.pause_consumer(msg.id).await {
                     Ok(()) => {}
                     Err(error) => {
-                        eprintln!("consumer_pause_request handler: {}", error);
+                        error!("consumer_pause_request handler: {}", error);
                         address.do_send(DisconnectMessage {
                             id: user.id,
                             send_to_client: true,

@@ -8,6 +8,7 @@ use async_rwlock::RwLock;
 use mediasoup::worker_manager::WorkerManager;
 use std::collections::HashMap;
 use std::rc::Rc;
+use tracing::info;
 ///
 /// Server Actor is used to maintain internal mediasoup state and rooms addresses.
 /// This actor can be used to manage rooms or achieve usage statistics of mediasoup state through
@@ -34,7 +35,7 @@ impl Server {
 impl Actor for Server {
     type Context = Context<Self>;
     fn started(&mut self, _ctx: &mut Self::Context) {
-        println!("Server Actor started");
+        info!("Server Actor started");
         let worker_manager = self.worker_manager.clone();
         let address = _ctx.address().clone();
         actix::spawn(async move {
@@ -43,7 +44,7 @@ impl Actor for Server {
     }
 
     fn stopping(&mut self, _: &mut Self::Context) -> Running {
-        println!("Server Actor Stopped");
+        info!("Server Actor Stopped");
         Running::Stop
     }
 }

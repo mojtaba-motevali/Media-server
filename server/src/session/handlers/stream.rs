@@ -4,6 +4,7 @@ use crate::session::socket_json_msg::ClientJsonMessage;
 use actix::*;
 use actix_web_actors::ws;
 use std::time::Instant;
+use tracing::info;
 
 use crate::session::WsSession;
 
@@ -26,10 +27,10 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsSession {
                 self.hb = Instant::now();
             }
             ws::Message::Text(text) => {
-                let message: ClientJsonMessage = match serde_json::from_str(text.as_str()) {
+                let message: ClientJsonMessage = match serde_json::from_slice(text.as_bytes()) {
                     Ok(struc) => struc,
                     Err(_err) => {
-                        println!("ws:text {:?}", _err);
+                        info!("ws:text {:?}", _err);
                         ctx.notify(InternalErrorMessage::InvalidJson(
                             "Json structure didn't match\"type\" or was not json at all."
                                 .to_string(),
@@ -39,9 +40,9 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsSession {
                 };
                 self.handle_message(message, ctx);
             }
-            ws::Message::Binary(_) => println!("Unexpected binary"),
+            ws::Message::Binary(_) => info!("Unexpected binary"),
             ws::Message::Close(reason) => {
-                println!("{:?}", reason);
+                info!("{:?}", reason);
                 ctx.address().do_send(DisconnectMessage {
                     id: self.session_id,
                     send_to_client: false,

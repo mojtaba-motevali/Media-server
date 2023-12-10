@@ -10,6 +10,7 @@ use mediasoup::audio_level_observer::{AudioLevelObserverOptions, AudioLevelObser
 use std::env;
 use std::iter::Iterator;
 use std::ops::Deref;
+use tracing::info;
 ///
 /// This handler is used by to signal asynchronous operations.
 ///
@@ -25,12 +26,12 @@ impl Handler<InternalMessage> for Room {
             }) => {
                 audio_level_observer
                     .on_silence(|| {
-                        println!("It's silenceeeeee");
+                        info!("It's silenceeeeee");
                     })
                     .detach();
                 let address = ctx.address();
                 audio_level_observer
-                    .on_volumes(move |voloumes: &Vec<AudioLevelObserverVolume>| {
+                    .on_volumes(move |voloumes: &[AudioLevelObserverVolume]| {
                         if voloumes.len() > 0 {
                             // loudest producer_id
                             let producer_id = voloumes[0].producer.id();
@@ -43,7 +44,7 @@ impl Handler<InternalMessage> for Room {
                                     user_id: app.user_id,
                                 });
                             } else {
-                                println!("Error While downcasting data app");
+                                info!("Error While downcasting data app");
                             }
                         }
                     })
@@ -77,7 +78,7 @@ impl Handler<InternalMessage> for Room {
                                     let message = "error while creating audioLevelObserver "
                                         .to_string()
                                         + &err.to_string();
-                                    println!("{}", message);
+                                    info!("{}", message);
                                     return;
                                 }
                             };

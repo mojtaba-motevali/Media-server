@@ -2,6 +2,7 @@ pub mod dto;
 mod handlers;
 pub mod message;
 use actix::prelude::*;
+use tracing::info;
 
 use crate::chat::{BroadcastMessage, PrivateMessage};
 use crate::media::app_data::media_service::MediaAppData;
@@ -20,7 +21,7 @@ use crate::user::User;
 use async_rwlock::RwLock;
 use mediasoup::audio_level_observer::{AudioLevelObserver, AudioLevelObserverVolume};
 use mediasoup::data_structures::AppData;
-use mediasoup::data_structures::TransportListenIp;
+use mediasoup::data_structures::ListenIp;
 use mediasoup::producer::ProducerId;
 use mediasoup::router::PipeToRouterOptions;
 use mediasoup::router::{Router, RouterId};
@@ -96,11 +97,29 @@ impl Room {
         router: Router,
         is_consumer: bool,
     ) {
-        let listen_ip = env::var("LISTEN_IP").unwrap();
+        let listen_ip: String = match env::var("LISTEN_IP") {
+            Ok(ip_str) => ip_str,
+            Err(err) => {
+                eprintln!("Error reading LISTEN_IP environment variable: {}", err);
+                return;
+            }
+        };
+        let listen_ip_parsed = match listen_ip.parse() {
+            Ok(parsed_ip) => parsed_ip,
+            Err(err) => {
+                eprintln!("Error parsing IP address: {}", err);
+                return;
+            }
+        };
+        
+        let _announced_ip: Option<IpAddr> = match listen_ip_parsed {
+            IpAddr::V4(ipv4_addr) => Some(IpAddr::V4(ipv4_addr)),
+            IpAddr::V6(ipv6_addr) => Some(IpAddr::V6(ipv6_addr)),
+        };
         let announced_ip: String = env::var("ANNOUNCED_IP").unwrap();
         let arr: Vec<&str> = announced_ip.split(".").collect();
         let mut transport_options =
-            WebRtcTransportOptions::new(TransportListenIps::new(TransportListenIp {
+            WebRtcTransportOptions::new(TransportListenIps::new(ListenIp {
                 ip: listen_ip.parse().unwrap(),
                 announced_ip: Some(IpAddr::V4(Ipv4Addr::new(
                     arr[0].parse().unwrap(),
@@ -257,7 +276,7 @@ impl Room {
                 }
             }
             if !transport_exist {
-                println!("creating_webrtc_trasnrpot for missed people");
+                info!("creating_webrtc_trasnrpot for missed people");
                 Room::create_webrtc_transport(user_rw_lock.clone(), router.clone(), is_consumer)
                     .await
             }
@@ -299,14 +318,14 @@ impl Room {
             .await
         {
             Ok(_) => {
-                println!(
+                info!(
                     "producer {:?} piped to router: {:?}",
                     producer_id,
                     dest_router.id()
                 );
             }
             Err(error) => {
-                println!("error while pipe_to_router {:?}", error);
+                info!("error while pipe_to_router {:?}", error);
             }
         }
     }
@@ -325,11 +344,11 @@ impl Actor for Room {
             .unwrap();
         audio_level_observer
             .on_silence(|| {
-                println!("It's silenceeeeee");
+                info!("It's silenceeeeee");
             })
             .detach();
         audio_level_observer
-            .on_volumes(move |voloumes: &Vec<AudioLevelObserverVolume>| {
+            .on_volumes(move |voloumes: &[AudioLevelObserverVolume]| {
                 if voloumes.len() > 0 {
                     // loudest producer_id
                     let producer_id = voloumes[0].producer.id();
@@ -342,7 +361,7 @@ impl Actor for Room {
                             user_id: app.user_id,
                         });
                     } else {
-                        println!("Error While downcasting data app");
+                        info!("Error While downcasting data app");
                     }
                 }
             })

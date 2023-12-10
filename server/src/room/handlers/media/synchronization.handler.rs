@@ -7,6 +7,7 @@ use mediasoup::producer::ProducerId;
 use mediasoup::router::Router;
 use std::collections::HashMap;
 use std::ops::Deref;
+use tracing::info;
 
 struct PipeStruct {
     consumer_router: Router,
@@ -81,7 +82,7 @@ impl Handler<SynchronizeProducers> for Room {
                     act.consumer_routers
                         .insert(message.router.id(), message.router);
                 }
-                println!("here is map and last synchronization step");
+                info!("here is map and last synchronization step");
                 Ok(())
             }),
         )

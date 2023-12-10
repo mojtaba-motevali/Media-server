@@ -9,6 +9,7 @@ use crate::session::room_actor_msg::DisconnectMessage;
 use actix::prelude::*;
 use mediasoup::rtp_parameters::MediaKind;
 use std::ops::Deref;
+use tracing::error;
 ///
 /// This handler is used to create new producer ordered by user ( when user opens camera or microphone in client. )
 ///
@@ -67,7 +68,7 @@ impl Handler<ProduceRequest> for Room {
                         });
                     }
                     Err(error) => {
-                        eprintln!("Producer: {}", error);
+                        error!("Producer: {}", error);
                         address.do_send(DisconnectMessage {
                             id: inner_user.id,
                             send_to_client: true,

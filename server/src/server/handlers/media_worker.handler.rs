@@ -6,21 +6,22 @@ use crate::server::Server;
 use actix::prelude::*;
 use mediasoup::router::Router;
 use mediasoup::worker::Worker;
+use tracing::error;
 ///
-/// This handler is used to dump mediasoup worker and remove it from map.  
+/// This handler is used to dump mediasoup worker and remove it from map.
 ///
 impl Handler<RemoveWorker> for Server {
     type Result = ();
     fn handle(&mut self, msg: RemoveWorker, _ctx: &mut Context<Self>) -> Self::Result {
         let worker_manager = self.worker_manager.clone();
-        Box::pin(
+        let _ = Box::pin(
             async move {
                 let mut wk = worker_manager.as_ref().write().await;
                 if let Some(worker) = wk.remove_worker(msg.worker_id, msg.is_consumer) {
                     match worker.dump().await {
                         Ok(_worker_dump) => {}
                         Err(error) => {
-                            eprintln!("Worker Error on dumping {:?}", error.to_string());
+                            error!("Worker Error on dumping {:?}", error.to_string());
                         }
                     }
                 }

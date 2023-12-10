@@ -9,6 +9,7 @@ use crate::user::{User, UserDto};
 use actix::prelude::*;
 use async_rwlock::RwLock;
 use std::rc::Rc;
+use tracing::info;
 ///
 /// This handler is used to join user to a room and disconnects other user's sessions.
 ///
@@ -97,7 +98,7 @@ impl Handler<RoomUserEntranceMessage> for Room {
 impl Handler<DisconnectMessage> for Room {
     type Result = ();
     fn handle(&mut self, msg: DisconnectMessage, _ctx: &mut Context<Self>) -> Self::Result {
-        println!(
+        info!(
             "removing {:?} from users because {:?} ",
             msg.id, msg.message
         );

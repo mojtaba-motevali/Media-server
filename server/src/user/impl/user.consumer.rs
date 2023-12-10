@@ -9,6 +9,7 @@ use mediasoup::data_structures::AppData;
 use mediasoup::transport::Transport;
 use mediasoup::webrtc_transport::WebRtcTransportRemoteParameters;
 use mediasoup::worker::RequestError;
+use tracing::info;
 impl User {
     ///
     /// This function inserts the provided consumer into consumer list.
@@ -21,9 +22,9 @@ impl User {
     ///
     pub fn remove_consumer(&mut self, consumer_id: ConsumerId) -> Option<Consumer> {
         if let Some(consumer) = self.consumers.remove(&consumer_id) {
-            return Some(consumer);
+            Some(consumer)
         } else {
-            println!("CONSUMER NOT FOUND");
+            info!("CONSUMER NOT FOUND");
             None
         }
     }
@@ -52,7 +53,7 @@ impl User {
     ///
     pub async fn create_consumer(&self, options: ConsumeArgsDto) -> Result<Consumer, String> {
         if let Some(transport) = self.consumer_transports.get(&self.current_ct_id) {
-            println!("creating consumer from transport id; {:?}", transport.id());
+            info!("creating consumer from transport id; {:?}", transport.id());
             let mut consume_options = ConsumerOptions::new(
                 options.producer_id,
                 self.self_rtp_capabilities.clone().unwrap(),
@@ -60,7 +61,7 @@ impl User {
             consume_options.app_data = AppData::new(MediaAppData {
                 user_id: options.user_id,
                 service_type: options.service_type,
-                router_id: transport.router_id(),
+                router_id: transport.router().id(),
             });
             consume_options.paused = true;
             let consumer = match transport.consume(consume_options).await {
@@ -79,7 +80,7 @@ impl User {
             consumer
                 .on_producer_pause(move || ws_actor.do_send(ConsumerPauseResponse { user_id, id }))
                 .detach();
-            return Ok(consumer);
+            Ok(consumer)
         } else {
             Err("transport_not_found".to_string())
         }
@@ -94,7 +95,7 @@ impl User {
                 consumer.pause().await?;
             }
         } else {
-            println!("WARN%: consumer not found");
+            info!("WARN%: consumer not found");
         }
         Ok(())
     }
@@ -108,7 +109,7 @@ impl User {
                 consumer.resume().await?;
             }
         } else {
-            println!("WARN%: consumer not found");
+            info!("WARN%: consumer not found");
         }
         Ok(())
     }

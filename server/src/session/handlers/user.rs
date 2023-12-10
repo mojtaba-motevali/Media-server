@@ -7,11 +7,12 @@ use crate::session::room_actor_msg::{DisconnectMessage, PeerDisconnectMessage};
 use crate::session::socket_json_msg::ServerJsonMessage;
 use crate::session::WsSession;
 use actix::*;
+use tracing::info;
 
 impl Handler<JoinRoomActorResponse> for WsSession {
     type Result = ();
     fn handle(&mut self, msg: JoinRoomActorResponse, ctx: &mut Self::Context) -> Self::Result {
-        println!("user id : {:?} joined", self.id);
+        info!("user id : {:?} joined", self.id);
         self.is_login = true;
         self.room_addr.replace(msg.room_addr);
         ctx.notify(ServerJsonMessage::JoinRoom(JoinRoomResponse {
@@ -43,10 +44,10 @@ impl Handler<NewUserResponse> for WsSession {
 impl Handler<DisconnectMessage> for WsSession {
     type Result = ();
     fn handle(&mut self, msg: DisconnectMessage, ctx: &mut Self::Context) -> Self::Result {
-        println!("user id {:?} disconnected.", msg.id);
+        info!("user id {:?} disconnected.", msg.id);
 
         if self.room_addr.is_some() && msg.send_to_room {
-            println!("informing room actor....");
+            info!("informing room actor....");
             self.room_addr.as_ref().unwrap().do_send(DisconnectMessage {
                 id: self.id,
                 send_to_client: false,

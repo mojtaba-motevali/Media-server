@@ -2,6 +2,7 @@ use crate::room::dto::producer_pause_request::ProducerPauseRequest;
 use crate::room::Room;
 use crate::session::room_actor_msg::DisconnectMessage;
 use actix::prelude::*;
+use tracing::error;
 ///
 /// This handler is used to serve user's request and pause user's producer stream.
 ///
@@ -16,7 +17,7 @@ impl Handler<ProducerPauseRequest> for Room {
                 match user.pause_producer(msg.id).await {
                     Ok(()) => {}
                     Err(error) => {
-                        eprintln!("Producer: {}", error);
+                        error!("Producer: {}", error);
                         address.do_send(DisconnectMessage {
                             id: user.id,
                             send_to_client: true,

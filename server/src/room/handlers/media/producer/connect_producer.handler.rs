@@ -3,6 +3,7 @@ use crate::room::dto::c_p_transport_response::ConnectedProducerTransportResponse
 use crate::room::Room;
 use crate::session::room_actor_msg::DisconnectMessage;
 use actix::prelude::*;
+use tracing::error;
 ///
 /// This handler is used to connect producer transports created in both client/server.
 ///
@@ -20,7 +21,7 @@ impl Handler<ConnectProducerTransportRequest> for Room {
                             .do_send(ConnectedProducerTransportResponse {});
                     }
                     Err(error) => {
-                        eprintln!("connect_producer_transport handler: {}", error);
+                        error!("connect_producer_transport handler: {}", error);
                         address.do_send(DisconnectMessage {
                             id: user.id,
                             send_to_client: true,

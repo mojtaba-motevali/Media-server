@@ -12,6 +12,7 @@ use actix::prelude::*;
 use mediasoup::audio_level_observer::{AudioLevelObserver, AudioLevelObserverOptions};
 use mediasoup::router::Router;
 use std::env;
+use tracing::info;
 
 ///
 /// This handler is main point where gets redirected when joins. depending on user's requested room,
@@ -89,7 +90,7 @@ impl Handler<JoinRoomMessage> for Server {
                     Err(err) => {
                         let message = "error while creating audioLevelObserver ".to_string()
                             + &err.to_string();
-                        println!("{}", message);
+                        info!("{}", message);
                         addr.do_send(DisconnectMessage {
                             message,
                             send_to_client: true,
@@ -99,31 +100,27 @@ impl Handler<JoinRoomMessage> for Server {
                         return;
                     }
                 };
-                let arb = Arbiter::new();
                 let _room_id = room_id_2.clone();
                 let router_rtp_capabilities = producer_router.rtp_capabilities().clone();
                 let _name = user_name.clone();
                 let _addr = addr.clone();
-                let room_addr = arb
-                    .exec(move || {
-                        let admin = User::new(user_id, _name, addr);
+                let room_addr = {
+                    let admin = User::new(user_id, _name, addr);
 
-                        let async_room = Room::new(RoomDto {
-                            audio_level_observer,
-                            id: _room_id,
-                            admin,
-                            server_addr,
-                            consumer_router: consumer_router.clone(),
-                            producer_router: producer_router.clone(),
-                        })
-                        .unwrap();
-                        async_room.start()
+                    let async_room = Room::new(RoomDto {
+                        audio_level_observer,
+                        id: _room_id,
+                        admin,
+                        server_addr,
+                        consumer_router: consumer_router.clone(),
+                        producer_router: producer_router.clone(),
                     })
-                    .await
                     .unwrap();
+                    async_room.start()
+                };
                 ctx_addr.do_send(AsyncRoomCreation {
                     room_id: room_id_2,
-                    arb,
+                    arb: Arbiter::new(),
                     room_addr: room_addr.clone(),
                 });
                 _addr.do_send(JoinRoomActorResponse {
@@ -154,7 +151,7 @@ impl Handler<JoinRoomMessage> for Server {
                     Ok(res) => res,
                     Err(err) => {
                         let message = "error while joining user ".to_string() + &err.to_string();
-                        println!("{}", message);
+                        info!("{}", message);
                         _addr.do_send(DisconnectMessage {
                             message,
                             send_to_client: true,

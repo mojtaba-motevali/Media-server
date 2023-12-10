@@ -211,7 +211,7 @@ impl MediaWorkerManager {
         worker
             .on_new_router(move |router: &Router| {
                 let app_data = app_data_outer.clone();
-                if actix::Arbiter::is_running() {
+                if actix::Arbiter::try_current().is_some() {
                     actix::spawn(async move {
                         let mut app = app_data.write().await;
                         app.add_router();
@@ -220,7 +220,7 @@ impl MediaWorkerManager {
                 let app_data = app_data_outer.clone();
                 router
                     .on_close(move || {
-                        if actix::Arbiter::is_running() {
+                        if actix::Arbiter::try_current().is_some() {
                             actix::spawn(async move {
                                 let mut app = app_data.write().await;
                                 app.subtract_router();
@@ -337,7 +337,7 @@ impl MediaWorkerManager {
         let worker_app_data = arc_mutex_cw.clone();
 
         transport
-            .on_new_consumer(Box::new(move |consumer: &Consumer| {
+            .on_new_consumer(Arc::new(move |consumer: &Consumer| {
                 let rapp_data = router_app_data.clone();
                 let wapp_data = worker_app_data.clone();
                 address.do_send(AddConsumer {
@@ -377,8 +377,8 @@ impl MediaWorkerManager {
             .downcast::<RwLock<ProducerRouterAppData>>()
             .unwrap();
         transport
-            .on_new_producer(Box::new(move |producer: &Producer| {
-                let rapp_data = router_app_data.clone();
+            .on_new_producer(Arc::new(move |producer: &Producer| {
+                let rapp_data: Arc<RwLock<ProducerRouterAppData>> = router_app_data.clone();
                 let wapp_data = worker_app_data.clone();
                 address.do_send(AddProducer {
                     producer_worker_app_data: wapp_data.clone(),

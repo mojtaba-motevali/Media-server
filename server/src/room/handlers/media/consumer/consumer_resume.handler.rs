@@ -2,6 +2,7 @@ use crate::room::dto::consumer_resume_request::ConsumerResumeRequest;
 use crate::room::Room;
 use crate::session::room_actor_msg::DisconnectMessage;
 use actix::prelude::*;
+use tracing::error;
 ///
 /// This handler is used to serve user's request and resume user's consumer stream.
 ///
@@ -16,7 +17,7 @@ impl Handler<ConsumerResumeRequest> for Room {
                 match user.resume_consumer(msg.id).await {
                     Ok(()) => {}
                     Err(error) => {
-                        eprintln!("consumer_resume_request handler: {}", error);
+                        error!("consumer_resume_request handler: {}", error);
                         address.do_send(DisconnectMessage {
                             id: user.id,
                             send_to_client: true,

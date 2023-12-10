@@ -2,6 +2,7 @@ use crate::room::dto::producer_resume_request::ProducerResumeRequest;
 use crate::room::Room;
 use crate::session::room_actor_msg::DisconnectMessage;
 use actix::prelude::*;
+use tracing::error;
 ///
 /// This handler is used to serve user's request and resume user's producer stream.
 ///
@@ -17,7 +18,7 @@ impl Handler<ProducerResumeRequest> for Room {
                 match user.resume_producer(msg.id).await {
                     Ok(()) => {}
                     Err(error) => {
-                        eprintln!("Producer: {}", error);
+                        error!("Producer: {}", error);
                         address.do_send(DisconnectMessage {
                             id: user.id,
                             send_to_client: true,

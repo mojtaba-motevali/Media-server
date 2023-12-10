@@ -1,0 +1,19 @@
+{
+    "http": {
+        "address": "192.168.0.70:8001"
+    },
+    "tracing": {
+        "filter": [
+            "info",
+            "tower_http::trace::on_request=debug",
+            "tower_http::trace::on_response=debug"
+        ],
+        "layers": [
+            {
+                "writer": {
+                    "stdout": {}
+                }
+            }
+        ]
+    }
+}

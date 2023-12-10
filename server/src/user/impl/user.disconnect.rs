@@ -1,5 +1,6 @@
 use crate::user::User;
 use mediasoup::transport::TransportGeneric;
+use tracing::info;
 
 impl User {
     ///
@@ -27,6 +28,6 @@ impl User {
             let _ = transport.dump().await;
         }
         self.producer_transports.clear();
-        println!("User's resource cleaned");
+        info!("User's resource cleaned");
     }
 }

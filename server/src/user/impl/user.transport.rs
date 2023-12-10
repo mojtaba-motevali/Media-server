@@ -1,6 +1,7 @@
 use crate::user::User;
 use mediasoup::transport::Transport;
 use mediasoup::webrtc_transport::WebRtcTransport;
+use tracing::info;
 
 impl User {
     ///
@@ -9,7 +10,7 @@ impl User {
     pub fn insert_transport(&mut self, transport: WebRtcTransport, is_consumer: bool) {
         if is_consumer {
             self.current_ct_id = transport.id().to_string();
-            println!("inserting consumer transport id; {:?}", transport.id());
+            info!("inserting consumer transport id; {:?}", transport.id());
             self.consumer_transports
                 .insert(self.current_ct_id.clone(), transport);
         } else {

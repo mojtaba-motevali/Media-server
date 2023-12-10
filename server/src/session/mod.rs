@@ -15,6 +15,7 @@ use rand::{self, rngs::ThreadRng, Rng};
 use room_actor_msg::{DisconnectMessage, JoinRoomMessage};
 use socket_json_msg::ClientJsonMessage;
 use std::time::{Duration, Instant};
+use tracing::info;
 
 mod handlers;
 const CLIENT_TIMEOUT: Duration = Duration::from_secs(10);
@@ -71,7 +72,7 @@ impl WsSession {
             // check client heartbeats
             if Instant::now().duration_since(act.hb) > CLIENT_TIMEOUT {
                 // heartbeat timed out
-                println!("Websocket Client heartbeat failed, disconnecting!");
+                info!("Websocket Client heartbeat failed, disconnecting!");
                 ctx.notify(DisconnectMessage {
                     id: act.id,
                     message: String::from("session Timeout"),
@@ -95,7 +96,7 @@ impl WsSession {
                 user_name,
                 user_id,
             }) => {
-                if room_id.len() > 0 {
+                if !room_id.is_empty() {
                     let addr = ctx.address();
                     self.id = user_id;
                     self.server_addr.do_send(JoinRoomMessage {
@@ -111,7 +112,7 @@ impl WsSession {
                 }
             }
             ClientJsonMessage::BroadcastMessage(broadcast_message_req) => {
-                if self.has_access() && broadcast_message_req.message.len() > 0 {
+                if self.has_access() && !broadcast_message_req.message.is_empty() {
                     self.room_addr
                         .as_ref()
                         .unwrap()

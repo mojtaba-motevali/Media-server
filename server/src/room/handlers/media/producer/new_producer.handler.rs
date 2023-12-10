@@ -1,5 +1,6 @@
 use actix::prelude::*;
 use std::ops::Deref;
+use tracing::info;
 
 use crate::media::app_data::media_service::MediaAppData;
 use crate::media::app_data::media_service::MediaServiceType;
@@ -40,7 +41,7 @@ impl Handler<NewProducer> for Room {
                     {
                         Ok(()) => {}
                         Err(err) => {
-                            println!(" error while adding audio_producer to list {:?}", err);
+                            info!(" error while adding audio_producer to list {:?}", err);
                         }
                     };
                 }
@@ -63,7 +64,7 @@ impl Handler<NewProducer> for Room {
                     let inner_user = user.as_ref().read().await;
                     match inner_user.create_consumer(options).await {
                         Ok(consumer) => {
-                            println!("consumer creating from new_producer... {:?}", consumer.id());
+                            info!("consumer creating from new_producer... {:?}", consumer.id());
                             let consumer_id = consumer.id();
                             inner_user.ws_actor_addr.do_send(ConsumedResponse {
                                 kind: consumer.kind(),
@@ -83,7 +84,7 @@ impl Handler<NewProducer> for Room {
 
                             let _address = address.clone();
                             consumer.on_producer_close( Box::new(move || {
-                                println!("producer of {:?} consumer closed in new_producer.hanlder()", consumer_id);
+                                info!("producer of {:?} consumer closed in new_producer.hanlder()", consumer_id);
                                 _address.do_send(
                                     ConsumerCloseRequest{user_id:_user_id,id:consumer_id,producer_user_id:_app_data.user_id}
                                 );
@@ -94,7 +95,7 @@ impl Handler<NewProducer> for Room {
                             }));
                         }
                         Err(error) => {
-                            println!("new_producer error while creating consumer {:?}", error);
+                            info!("new_producer error while creating consumer {:?}", error);
                             address.do_send(DisconnectMessage {
                                 id: user_id,
                                 send_to_client: true,

@@ -4,6 +4,7 @@ use crate::server::message::{
 };
 use crate::server::Server;
 use actix::prelude::*;
+use tracing::info;
 
 ///
 /// This hanlder is used to decrease number of consumers.
@@ -17,12 +18,12 @@ impl Handler<RemovedConsumer> for Server {
             {
                 let mut data = wapp_data.as_ref().write().await;
                 data.subtract(1);
-                println!("data_worker_consumer:{:?}", data.get());
+                info!("data_worker_consumer:{:?}", data.get());
             }
             {
                 let mut data = rapp_data.as_ref().write().await;
                 data.subtract(1);
-                println!("data_router_consumer:{:?}", data.get());
+                info!("data_router_consumer:{:?}", data.get());
             }
         });
     }
@@ -39,12 +40,12 @@ impl Handler<AddConsumer> for Server {
             {
                 let mut data = rapp_data.as_ref().write().await;
                 data.add(1);
-                println!("data_router_consumer:{:?}", data.get());
+                info!("data_router_consumer:{:?}", data.get());
             }
             {
                 let mut data = wapp_data.as_ref().write().await;
                 data.add(1);
-                println!("data_worker_consumer:{:?}", data.get());
+                info!("data_worker_consumer:{:?}", data.get());
             }
         });
     }
@@ -61,12 +62,12 @@ impl Handler<RemovedProducer> for Server {
             {
                 let mut data = rapp_data.as_ref().write().await;
                 data.subtract(1);
-                println!("number of router_producer:{:?}", data.get());
+                info!("number of router_producer:{:?}", data.get());
             }
             {
                 let mut data = wapp_data.as_ref().write().await;
                 data.subtract(1);
-                println!("number of worker_producer:{:?}", data.get());
+                info!("number of worker_producer:{:?}", data.get());
             }
         });
     }
@@ -91,12 +92,12 @@ impl Handler<AddProducer> for Server {
             {
                 let mut data = rapp_data.as_ref().write().await;
                 data.add(1);
-                println!("number of data_producer: {:?}", data.get());
+                info!("number of data_producer: {:?}", data.get());
             }
             {
                 let mut data = wapp_data.as_ref().write().await;
                 data.add(1);
-                println!("number of worker_producer:{:?}", data.get());
+                info!("number of worker_producer:{:?}", data.get());
             }
         });
     }

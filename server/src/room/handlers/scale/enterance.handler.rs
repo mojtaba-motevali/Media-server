@@ -7,6 +7,7 @@ use actix::prelude::*;
 use async_rwlock::RwLock;
 use mediasoup::router::RouterId;
 use std::ops::Deref;
+use tracing::info;
 ///
 /// This handler is used to scale application when users join if needed.
 ///
@@ -55,7 +56,7 @@ impl Handler<EnteranceScale> for Room {
                 .unwrap();
             // if current worker can't handle this amount of consumers
             if !can_handle {
-                println!("cant handle");
+                info!("cant handle");
                 // find least worker usage
                 let worker = server_addr
                     .send(FindLeastWorkerUsage {
